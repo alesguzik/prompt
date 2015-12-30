@@ -1,0 +1,39 @@
+#!/bin/zsh
+
+autoload colors
+colors
+for COLOR in RED GREEN YELLOW BLUE MAGENTA CYAN BLACK WHITE; do
+    eval $COLOR='%{$fg_no_bold[${(L)COLOR}]%}'
+    eval BOLD_$COLOR='%{$fg_bold[${(L)COLOR}]%}'
+done
+eval RESET='%{$reset_color%}'
+
+
+function battery {
+  acpi|tail -1|awk '{
+  sub("Charging,","⇡",$3);
+  sub("Full,","⤒",$3);
+  sub("Unknown,","?",$3);
+  sub("Discharging,","⇣",$3);
+  sub(",",""    ,$4);
+  sub("%","%",$4);
+  print $3$4}'
+}
+
+function user {
+  case "$(whoami)" in
+    "me"   ) echo "${WHITE}me" ;;
+    "root" ) echo "${BOLD_RED}root"   ;;  
+    *      ) echo "${BOLD_GREEN}$(whoami)" ;;
+  esac
+}
+
+function host {
+  case "$(hostname)" in
+		"laptop" ) echo "${WHITE}laptop" ;;
+    "jarvis.aguzik.net" ) echo "${BOLD_BLUE}jarvis" ;;
+    * ) echo "${BOLD_GREEN}$(hostname)" ;;
+  esac
+}
+
+echo "$(battery) $(user)${BOLD_WHITE}@$(host)$RESET"
