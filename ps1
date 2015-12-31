@@ -10,15 +10,25 @@ eval RESET='%{$reset_color%}'
 
 
 function git-staged {
-  [ "$(git diff --shortstat 2> /dev/null | tail -n1)" != "" ] && echo "${BOLD_BLUE}+"
+  staged=''
+  if git rev-parse --quiet --verify HEAD &> /dev/null ; then
+    git diff-index --cached --quiet --ignore-submodules=dirty HEAD 2> /dev/null
+    (( $? && $? != 128 )) && staged=1
+  else
+    # empty repository (no commits yet)
+    # 4b825dc642cb6eb9a060e54bf8d69288fbee4904 is the git empty tree.
+    git diff-index --cached --quiet --ignore-submodules=dirty 4b825dc642cb6eb9a060e54bf8d69288fbee4904 2>/dev/null
+    (( $? && $? != 128 )) && staged=1
+  fi
+  [ -n "$staged" ] && echo "${BOLD_BLUE}+"
 }
 
 function git-unstaged {
-  [ "$(git diff --shortstat 2> /dev/null | tail -n1)" != "" ] && echo "${BOLD_BLUE}!"
+  git diff --no-ext-diff --ignore-submodules=dirty --quiet --exit-code || echo "${BOLD_BLUE}!"
 }
 
 function git-vcs {
-echo "${CYAN}[ ${WHITE}$(git rev-parse --abbrev-ref HEAD)$(git-unstaged)$(git-staged) ${CYAN}]"
+  echo "${CYAN}[ ${WHITE}$(git rev-parse --abbrev-ref HEAD)$(git-staged)$(git-unstaged) ${CYAN}]"
 }
 
 function vcs {
