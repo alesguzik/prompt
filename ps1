@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 autoload colors
 colors
@@ -61,10 +61,16 @@ function current-dir {
 #: $#⊞⊠⊙§¢¥€∞®∑ϴΦΩΞΨαγλμπ○◧◯◉●►▻▷▸▹▩▧▨▦▶xo
 function prompt-char {
   case "$(whoami)" in
-		"me"   ) echo "$BOLD_WHITE○" ;;
-    "root" ) echo "$BOLD_RED#"   ;;
-    *      ) echo "$BOLD_GREEN§" ;;
+		"me"   ) echo "${BOLD_WHITE}o" ;;
+    "root" ) echo "${BOLD_RED}#"   ;;
+    *      ) echo "${BOLD_GREEN}§" ;;
   esac
 }
 
-echo "$(date +%H:%M) $(current-dir)$(vcs) $(prompt-char) $RESET"
+function ps-note {
+  if [ -n "$PS1_NOTE" ]; then
+    echo "($PS1_NOTE) ";
+  fi
+}
+
+echo -n "$(date +%H:%M) $(current-dir)$(vcs) $(ps-note)$(prompt-char)$RESET "
